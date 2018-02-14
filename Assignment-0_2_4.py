@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.linalg import inv
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
@@ -17,6 +18,9 @@ for i in np.arange(3):
 	y_test[i]=np.random.normal(0,0.05,n[i])+0.5+0.4*np.sin(2*np.pi*x_test[i])
 	for d in np.arange(10):
 		poly.append(np.zeros((3,d+1)))
+		#A=[[x_train[0]**0,...,x_train[0]**d],...,[x_train[n[i]]**0]]
+		#poly[d][i]=inv(A)*x
+
 		poly[d][i]=np.polyfit(x_train[i],y_train[i],d)
 		p=np.poly1d(poly[d][i])
 		plt.figure(10*i+d+1)
@@ -42,8 +46,8 @@ for i in np.arange(3):
 			error_train[i][d]=error_train[i][d]+(np.polyval(poly[d][i],x_train[i])[k]-y_train[i][k])**2
 			error_test[i][d]=error_test[i][d]+(np.polyval(poly[d][i],x_test[i])[k]-y_test[i][k])**2
 			#reg_error[i][d]=reg_error[i][d]+(poly[d][i][k])**2
-		MSE_train[i][d]=(1/n[i])*error_train[i][d]
-		MSE_test[i][d]=(1/n[i])*error_test[i][d]
+		MSE_train[i][d]=(1/(float(n[i]))*error_train[i][d]
+		MSE_test[i][d]=(1/float(n[i]))*error_test[i][d]
 		#MSE_REG[i][d]=MSE[i][d]+reg_parameter*reg_error[i][d]
 	plt.figure(31+i)
 	plt.plot(np.arange(10),MSE_train[i],'ro')
