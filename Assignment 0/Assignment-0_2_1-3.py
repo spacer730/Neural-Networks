@@ -7,7 +7,7 @@ x_train=np.array([np.zeros(9),np.zeros(15),np.zeros(100)])
 x_test=np.array([np.zeros(9),np.zeros(15),np.zeros(100)])
 y_train=np.array([np.zeros(9),np.zeros(15),np.zeros(100)])
 y_test=np.array([np.zeros(9),np.zeros(15),np.zeros(100)])
-n=[9.,15.,100.]
+n=[9,15,100]
 poly=[] #Here we will store the coefficients of the polynomials
 
 for i in np.arange(3):
