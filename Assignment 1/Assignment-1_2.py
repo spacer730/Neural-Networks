@@ -42,7 +42,7 @@ with open('train_in.csv') as train_in: #Compute distance between centers and dat
 		distmanhattan=[]
 		distcosine=[]
 		distcorrelation=[]
-		for i in range(10): #Find out which digit the row is
+		for i in range(10):
 			disteuclid.append(np.dot(c[i]-np.array(list(map(float,row))),c[i]-np.array(list(map(float,row)))))
 			distmanhattan.append(sklearn.metrics.pairwise.pairwise_distances([c[i]],[np.array(list(map(float,row)))],metric='manhattan'))
 			distcosine.append(sklearn.metrics.pairwise.pairwise_distances([c[i]],[np.array(list(map(float,row)))],metric='cosine'))
@@ -102,7 +102,7 @@ with open('test_in.csv') as test_in: #Compute distance between centers and data 
 		distmanhattan=[]
 		distcosine=[]
 		distcorrelation=[]
-		for i in range(10): #Find out which digit the row is
+		for i in range(10):
 			disteuclid.append(np.dot(c[i]-np.array(list(map(float,row))),c[i]-np.array(list(map(float,row)))))
 			distmanhattan.append(sklearn.metrics.pairwise.pairwise_distances([c[i]],[np.array(list(map(float,row)))],metric='manhattan'))
 			distcosine.append(sklearn.metrics.pairwise.pairwise_distances([c[i]],[np.array(list(map(float,row)))],metric='cosine'))
