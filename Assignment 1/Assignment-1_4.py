@@ -54,7 +54,7 @@ with open('test_out.csv') as test_out:
 x_test=[[] for i in range(len(testdigitsoflines))]
 y_test=[[] for i in range(len(testdigitsoflines))]
 
-#We read in the test data and store it in x_est as row vectors with length 257
+#We read in the test data and store it in x_test as row vectors with length 257
 with open('test_in.csv') as test_in:
 	readtest_in = csv.reader(test_in, delimiter=',')
 	for row in readtest_in:
