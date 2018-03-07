@@ -1,0 +1,19 @@
+q75_1, q25_1 = np.percentile(activation1, [75 ,25])
+iqr_1 = q75_1 - q25_1
+
+q75_8, q25_8 = np.percentile(activation8, [75 ,25])
+iqr_8 = q75_8 - q25_8
+
+bw_1=0.9*min(np.sqrt(np.var(activation1)),iqr_1/1.349)/(len(activation1)**0.2)
+bw_8=0.9*min(np.sqrt(np.var(activation8)),iqr_8/1.349)/(len(activation8)**0.2)
+
+print(bw_1)
+print(bw_8)
+
+xaxis1=np.linspace(activation1.min(),activation1.max(),1000)
+xaxis8=np.linspace(activation8.min(),activation8.max(),1000)
+
+kde1 = KernelDensity(bandwidth=bw_1, kernel='gaussian')
+kde8 = KernelDensity(bandwidth=bw_8, kernel='gaussian')
+dens_C1 = np.exp(kde1.fit(activation1[:,None]).score_samples(xaxis1[:,None]))
+dens_C8 = np.exp(kde8.fit(activation8[:,None]).score_samples(xaxis8[:,None]))

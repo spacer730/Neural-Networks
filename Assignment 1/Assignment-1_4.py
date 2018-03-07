@@ -4,23 +4,24 @@ import csv
 
 traindigitsoflines=[] #Store which lines belong to which digits
 
+#Read out which lines belong to which digits
 with open('train_out.csv') as train_out:
 	readtrain_out = csv.reader(train_out, delimiter=',')
 	for row in readtrain_out:
-		traindigitsoflines.append([readtrain_out.line_num,int(row[0])]) #Read out which lines belong to which digits
+		traindigitsoflines.append([readtrain_out.line_num,int(row[0])]) 
 
+#Iniatlize 256+1 times 10 random weights for the 256 nodes + bias for the 10 output nodes.
 weights=np.random.randn(10,257)
 
 x_train=[[] for i in range(len(traindigitsoflines))]
 y_train=[[] for i in range(len(traindigitsoflines))]
 
-#We read in the training data and store it in x_train as row vectors with length 257
+#We read in the training data and store it in x_train as row vectors with length 257 and make the first prediction y_train with the randomly initialized weights
 with open('train_in.csv') as train_in:
 	readtrain_in = csv.reader(train_in, delimiter=',')
 	for row in readtrain_in:
 		x_train[readtrain_in.line_num-1].extend([1.]) #First term is for the bias
 		x_train[readtrain_in.line_num-1].extend(list(map(float,row)))
-		#x_train[readtrain_in.line_num-1]=np.array(x_train[readtrain_in.line_num-1])
 		y_train[readtrain_in.line_num-1].extend(np.dot(weights,x_train[readtrain_in.line_num-1]))
 
 #Store the index of the misclassified data for the training set
@@ -29,10 +30,9 @@ for i in range(len(traindigitsoflines)):
 	if np.argmax(y_train[i])!=traindigitsoflines[i][1]:
 		misclassified.append(i)
 
-iterationcounter=0
-
 #Keep updating weights untill there are no more misclassified examples
-while len(misclassified) != 0:
+iterationcounter=0
+while len(misclassified)!=0:
 	iterationcounter+=1
 	#pick random sample out of misclassified set
 	sample=np.random.choice(misclassified)
@@ -48,31 +48,29 @@ while len(misclassified) != 0:
 	for i in range(len(traindigitsoflines)):
 		y_train[i]=np.dot(weights,x_train[i])
 
-	#Store the index of the misclassified data for the training set with the update weights
+	#Update the index of the misclassified data for the training set with the updated weights
 	misclassified=[]
 	for i in range(len(traindigitsoflines)):
 		if np.argmax(y_train[i])!=traindigitsoflines[i][1]:
 			misclassified.append(i)
 
-print(iterationcounter)
+print('Converged on training set in '+str(iterationcounter)+' steps')
 
-trainprediction=[]
 #Store the predictions from the training set with the final weights
+trainprediction=[]
 for i in range(len(traindigitsoflines)):
 	trainprediction.append(np.argmax(y_train[i]))
 
+#Determine accuracy on training set
 traincounter=0
 for i in range(len(traindigitsoflines)):
 	if trainprediction[i]==traindigitsoflines[i][1]:
 		traincounter+=1
-
 trainaccuracy=traincounter/len(traindigitsoflines)
+print('Accuracy on training set is: '+str(trainaccuracy))
 
-print(trainaccuracy)
-print(traincounter)
-
-testdigitsoflines=[] #Store which lines belong to which digits
-
+#Store which lines belong to which digits for test set
+testdigitsoflines=[] 
 with open('test_out.csv') as test_out:
 	readtest_out = csv.reader(test_out, delimiter=',')
 	for row in readtest_out:
@@ -81,23 +79,19 @@ with open('test_out.csv') as test_out:
 x_test=[[] for i in range(len(testdigitsoflines))]
 y_test=[[] for i in range(len(testdigitsoflines))]
 
-#We read in the test data and store it in x_test as row vectors with length 257
+#Read in data for test set and determine digit with the determined weights from the training set
 with open('test_in.csv') as test_in:
 	readtest_in = csv.reader(test_in, delimiter=',')
 	for row in readtest_in:
 		x_test[readtest_in.line_num-1].extend([1.]) #First term is for the bias
 		x_test[readtest_in.line_num-1].extend(list(map(float,row)))
-		#x_train[readtrain_in.line_num-1]=np.array(x_train[readtrain_in.line_num-1])
 		y_test[readtest_in.line_num-1].extend(np.dot(weights,x_test[readtest_in.line_num-1]))
-
 testprediction=[np.argmax(y_test[i]) for i in range(len(y_test))]
 
+#Determine accuracy on test set
 testcounter=0
 for i in range(len(testdigitsoflines)):
 	if testprediction[i]==testdigitsoflines[i][1]:
 		testcounter+=1
-
 testaccuracy=testcounter/len(testdigitsoflines)
-
-print(testaccuracy)
-print(testcounter)
+print('Accuracy on test set is: '+str(testaccuracy))
