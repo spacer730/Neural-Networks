@@ -23,15 +23,42 @@ with open('train_in.csv') as train_in:
 		#x_train[readtrain_in.line_num-1]=np.array(x_train[readtrain_in.line_num-1])
 		y_train[readtrain_in.line_num-1].extend(np.dot(weights,x_train[readtrain_in.line_num-1]))
 
-trainprediction=[]
-#For each data point we will update the weights untill the max of the output vector is equal to the digit
+#Store the index of the misclassified data for the training set
+misclassified=[]
 for i in range(len(traindigitsoflines)):
-	while np.argmax(y_train[i])!=traindigitsoflines[i][1]:
-		for j in [k for k in range(10) if k!=traindigitsoflines[i][1]]:
-			if y_train[i][j]>=y_train[i][traindigitsoflines[i][1]]:
-				weights[j]-=x_train[i]
-		weights[traindigitsoflines[i][1]]+=x_train[i]
+	if np.argmax(y_train[i])!=traindigitsoflines[i][1]:
+		misclassified.append(i)
+
+iterationcounter=0
+
+#Keep updating weights untill there are no more misclassified examples
+while len(misclassified) != 0:
+	iterationcounter+=1
+	#pick random sample out of misclassified set
+	sample=np.random.choice(misclassified)
+	#train the weights for the sample untill the max of the output vector is equal to the digit
+	while np.argmax(y_train[sample])!=traindigitsoflines[sample][1]:
+		for j in [k for k in range(10) if k!=traindigitsoflines[sample][1]]:
+			if y_train[sample][j]>=y_train[sample][traindigitsoflines[sample][1]]:
+				weights[j]-=x_train[sample]
+		weights[traindigitsoflines[sample][1]]+=x_train[sample]
+		y_train[sample]=np.dot(weights,x_train[sample])
+	
+	#Update predictions with new weights
+	for i in range(len(traindigitsoflines)):
 		y_train[i]=np.dot(weights,x_train[i])
+
+	#Store the index of the misclassified data for the training set with the update weights
+	misclassified=[]
+	for i in range(len(traindigitsoflines)):
+		if np.argmax(y_train[i])!=traindigitsoflines[i][1]:
+			misclassified.append(i)
+
+print(iterationcounter)
+
+trainprediction=[]
+#Store the predictions from the training set with the final weights
+for i in range(len(traindigitsoflines)):
 	trainprediction.append(np.argmax(y_train[i]))
 
 traincounter=0
