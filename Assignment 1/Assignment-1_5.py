@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.ma as ma
+import matplotlib.pyplot as plt
 import csv
 
 def xor_net(x1,x2,weights):
@@ -25,25 +26,40 @@ def missclassified(weights):
 		misclassified+=1
 	if xor_net(1,1,weights)>0.5:
 		misclassified+=1
+	return missclassified
 	
 
 def grdmse(weights):
+	eps=0.001
 	numrows=weights.shape[0]
 	numcols=weights.shape[1]
+	grmdse=np.zeros((3,3))
 	for i in range(numrows):
 		for j in range(numcols):
-			(mse(weights+eps*)-mse(weights))/eps
+			a=np.zeros((3,3))
+			a[i][j]=eps
+			grdmse[i][j]=(mse(weights+a)-mse(weights))/eps
 
 def trainnetwork(learningrate):
-	seed()
-	weights=np.random.rand(2,3)
+	np.random.seed(0)
+	weights=np.random.randn(3,3)
 	counter=0
+	mse=[]
+	difmse=[]
 	for i in range(2000): #difmse>0:
-		a=mse(weights)
+		#a=mse(weights)
 		weights=weights-learningrate*grdmse(weights)
-		b=mse(weights)
-		difmse=b-a
+		#b=mse(weights)
+		#difmse.append(b-a)
+		#mse.append(b)
 		counter+=1
-		
 
+weights=np.random.randn(3,3)
+a=np.zeros((3,3))
+a[0][0]=0.001
+print(mse(weights+a))
+trainnetwork(0.2)
 
+plt.figure()
+plt.plot(range(len(difmse)),difmse)
+plt.show()
