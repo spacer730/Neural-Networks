@@ -3,9 +3,18 @@ import numpy.ma as ma
 import matplotlib.pyplot as plt
 import csv
 
-def xor_net(x1,x2,weights):
+def sigmoid(x):
+	return 1/(1+np.exp(-x))
+
+def relu(x):
+	return max(0,x)
+
+def xor_net(x,weights):
 	y=np.dot(np.array([weights[0],weights[1]]),np.array([1,x1,x2]))
-	z=np.dot(np.array(weights[2]),np.array([1,y[0],y[1]]))
+	#y=list(map(lambda y: sigmoid(y), y))
+	#y=list(map(lambda y: relu(y), y))
+	y=list(map(lambda y: np.tanh(y), y))
+	z=np.tanh(np.dot(np.array(weights[2]),np.array([1,y[0],y[1]])))
 	return z
 
 def mse(weights):
@@ -28,38 +37,41 @@ def missclassified(weights):
 		misclassified+=1
 	return missclassified
 	
-
 def grdmse(weights):
 	eps=0.001
 	numrows=weights.shape[0]
 	numcols=weights.shape[1]
-	grmdse=np.zeros((3,3))
+	grdmse=np.zeros((3,3))
 	for i in range(numrows):
 		for j in range(numcols):
 			a=np.zeros((3,3))
 			a[i][j]=eps
 			grdmse[i][j]=(mse(weights+a)-mse(weights))/eps
+	return grdmse
 
 def trainnetwork(learningrate):
-	np.random.seed(0)
-	weights=np.random.randn(3,3)
+	#weights=np.random.randn(3,3)
+	weights=np.random.rand(3,3)
 	counter=0
-	mse=[]
+	mselist=[]
 	difmse=[]
-	for i in range(2000): #difmse>0:
-		#a=mse(weights)
+	updatedmse=mse(weights)
+	while counter < 2000:
+		initmse=mse(weights)
 		weights=weights-learningrate*grdmse(weights)
-		#b=mse(weights)
-		#difmse.append(b-a)
-		#mse.append(b)
+		updatedmse=mse(weights)
+		difmse.append(updatedmse-initmse)
+		mselist.append(updatedmse)
 		counter+=1
+	return difmse, mselist, weights, counter
 
-weights=np.random.randn(3,3)
-a=np.zeros((3,3))
-a[0][0]=0.001
-print(mse(weights+a))
-trainnetwork(0.2)
+difmse, mselist, weights, counter = trainnetwork(0.1)
+
+print(xor_net(0,1,weights))
+print(xor_net(1,0,weights))
+print(xor_net(0,0,weights))
+print(xor_net(1,1,weights))
 
 plt.figure()
-plt.plot(range(len(difmse)),difmse)
+plt.plot(range(counter),mselist)
 plt.show()
