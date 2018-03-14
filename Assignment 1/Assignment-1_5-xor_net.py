@@ -7,17 +7,25 @@ def sigmoid(x):
 	return 1/(1+np.exp(-x))
 
 def relu(x):
-	return max(0,x)
+	return np.maximum(0,x)
 
-def tanh(x):
-	return tanh
+def leakyrelu(x):
+	return np.maximum(0.1*x,x)
 
 def xor_net(x1,x2,weights):
 	y=np.dot(np.array([weights[0],weights[1]]),np.array([1,x1,x2]))
-	#y=list(map(lambda y: sigmoid(y), y))
+
+	y=list(map(lambda y: sigmoid(y), y))
+	z=sigmoid(np.dot(np.array(weights[2]),np.array([1,y[0],y[1]])))
+
+	#y=list(map(lambda y: np.tanh(y), y))
+	#z=np.tanh(np.dot(np.array(weights[2]),np.array([1,y[0],y[1]])))
+
 	#y=list(map(lambda y: relu(y), y))
-	y=list(map(lambda y: np.tanh(y), y))
-	z=np.tanh(np.dot(np.array(weights[2]),np.array([1,y[0],y[1]])))
+	#z=relu(np.dot(np.array(weights[2]),np.array([1,y[0],y[1]])))
+
+	#y=list(map(lambda y: leakyrelu(y), y))
+	#z=leakyrelu(np.dot(np.array(weights[2]),np.array([1,y[0],y[1]])))
 	return z
 
 def mse(weights):
@@ -33,11 +41,11 @@ def missclassified(weights):
 	if xor_net(0,0,weights)>0.5:
 		missclassified+=1
 	if xor_net(0,1,weights)<=0.5:
-		misclassified+=1
+		missclassified+=1
 	if xor_net(1,0,weights)<=0.5:
-		misclassified+=1
+		missclassified+=1
 	if xor_net(1,1,weights)>0.5:
-		misclassified+=1
+		missclassified+=1
 	return missclassified
 	
 def grdmse(weights):
@@ -52,29 +60,50 @@ def grdmse(weights):
 			grdmse[i][j]=(mse(weights+a)-mse(weights))/eps
 	return grdmse
 
-def trainnetwork(learningrate):
-	#weights=np.random.randn(3,3)
-	weights=np.random.rand(3,3)
+def trainnetwork(learningrate,IN):
+	np.random.seed(42)
+	if IN == 'normal':
+		weights=np.random.randn(3,3)
+	if IN == 'uniform':
+		weights=np.random.uniform(-1,1,9).reshape(3,3)
 	counter=0
 	mselist=[]
-	difmse=[]
-	updatedmse=mse(weights)
-	while counter < 2000:
-		initmse=mse(weights)
+	missclassifiedlist=[]
+	while counter < 4000:
 		weights=weights-learningrate*grdmse(weights)
-		updatedmse=mse(weights)
-		difmse.append(updatedmse-initmse)
-		mselist.append(updatedmse)
+		mselist.append(mse(weights))
+		missclassifiedlist.append(missclassified(weights))
 		counter+=1
-	return difmse, mselist, weights, counter
+	return weights, mselist, missclassifiedlist
 
-difmse, mselist, weights, counter = trainnetwork(0.1)
+weights, mselist, missclassifiedlist = np.full((2,3,3,3), 0),np.zeros((2,3,4000)),np.zeros((2,3,4000))
+learningrate = [0.1,0.25,0.5]
+IN = ['normal','uniform']
+for i in range (2):
+	for j in range(3):
+		weights[i][j], mselist[i][j], missclassifiedlist[i][j] = trainnetwork(learningrate[j],IN[i])
 
-print(xor_net(0,1,weights))
-print(xor_net(1,0,weights))
-print(xor_net(0,0,weights))
-print(xor_net(1,1,weights))
+fig=plt.figure()
+for i in range(2):
+	for j in range(3):
+			ax=fig.add_subplot(2,3,3*i+j+1, label="1")
+			ax2=fig.add_subplot(2,3,3*i+j+1, label="2", frame_on=False)
 
-plt.figure()
-plt.plot(range(counter),mselist)
-plt.show()
+			ax.plot(range(len(mselist[i][j])), mselist[i][j], color="C0")
+			ax.set_xticks([0,2000,4000])
+			ax.set_xlabel("Iterations", color="k")
+			ax.set_ylabel("MSE", color="C0")
+			ax.set_ylim([0,2])
+			ax.tick_params(axis='y', colors="C0")
+
+			ax2.plot(range(len(missclassifiedlist[i][j])), missclassifiedlist[i][j], color="C1")
+			plt.text(1500, 2.8, r'$\eta=$'+str(learningrate[j]))
+			ax2.set_xticks([0,2000,4000])
+			ax2.yaxis.tick_right()
+			ax2.set_ylabel('# missclassified units', color="C1")
+			ax2.set_ylim([0,4])
+			ax2.yaxis.set_label_position('right')
+			ax2.tick_params(axis='y', colors="C1")
+
+plt.subplots_adjust(hspace=0.3, wspace=1)
+plt.savefig('Activationfunction sigmoid')
