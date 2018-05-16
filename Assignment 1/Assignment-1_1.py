@@ -13,7 +13,7 @@ with open('train_out.csv') as train_out:
 	readtrain_out = csv.reader(train_out, delimiter=',')
 	for row in readtrain_out:
 		for i in range(10):
-			if int(row[0])==i:			
+			if int(row[0])==i:
 				digitsoflines[i].append(readtrain_out.line_num) #Read out which lines belong to which digits
 
 n=[len(digitsoflines[i]) for i in range(10)] #Compute number of training points for each digit
